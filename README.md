@@ -1,10 +1,7 @@
 # Designing-Data-Intensive-Applications
 
----
 
 # Chapter 1
-
----
 
 ## Realiability
 The system should continue to work *correctly* (performing the correct function at the desired level of performance) even in the face of *adversity* (hardware or software faults, and even human error).
@@ -75,4 +72,69 @@ Once load is described in the systerm, you can invest what happens when the load
 
 - In practice, in a system handling a variety of requests, the response time can vary a lot. We therefore need to think of response time not as a single number, but as a *distribution* of values that you can measure
 - Random latnecy variation can come from context switch to a background process, the loss of a network packet and TCP retransmission, a garbase collection pause, a page fault forcing a read from disk, mechanical vibrations in the server rack, or many other causes
+- *Average* is not a good measurement for response time since it does not tell you how many users actually experienced that delay
+- It is better to use *percentiles*
+- In order to figure out how bad your outliers are, you can look at higher percentiles: the p95, p99, and p99.9 percentiles are common
+- Higher percentiles of response times, also known as *tail latencies*, are important because they directly affect users' experience of the service
+- Queueing delays often account for a large part of the response time at high percentiles. As a server can only process a small number of things in parallel, it only takes a small number of slow requests to hold up the processing of subsequent requests - an effect sometimes known as *head-of-line blocking*
+- High percentiles becomes especially important in backend services that are called multiple times as part of serving a sing end-user requests. Even if you make the calls in parallel, the end-user requests still needs to wait for the slowest of the parallel calls to complete
 
+### Approaches for Coping with Load
+
+- Scaling up: Vertical scaling, moving to a more powerful machine
+- Scaling out: Horizontal scaling, distributing the load across multiple smaller machines
+- Distributing load across multiple machines is also known as a *shared-nothing* architecture
+- The architecture of systems that operate at large scale is usually highly specific to the application
+
+### Maintainability
+
+- Majority of the cost of software is not in its initial development but in its ongoing maintaenance
+- To minimize pain during maintenance, we should pay particular attention to three design principles for software systmes:
+1. Operability: Make it easy for operations team to keep the system running smoothly
+2. Simplicity: Make it easy for new engineers to understand the system, by removing as much complexity as possible from the system
+3. Evolvability: Make it easy for engineers to make changes to the system in the future, adapting it for unanticipated use cases as requirements change. Also known as *extensibility*, *modifiability*, *plasticity*
+
+### Operabiltiy: Making Life Easy for Operations
+
+- Operation teams are vital to keeping a software system running smoothly
+- A good operations team typically is responsible for the following:
+  - Monitoring the health of the system and quickly restoring service if it goes into a bad state
+  - Tracking down the cause of problems, such as system failures or degraded performance
+  - Keeping software and platforms up to date, including security patches
+- Good operability means making routine tasks easy, allowing the oeprations team to focus their efforts on high-value activities. Data systems can do various things to make routine tasks easy, including:
+  - Providing visibility into the runtime behaviour and internals of the system, with good monitoring
+  - Providing good support for automation and integration with standard tools
+  - Providing good documentation and an easy-to-understand operational model ("If I do X, Y will happen")
+
+### Simplicity: Managing Complexity
+
+- Small software projects can have delightfully simple and expressive code, but as projects get larger, they often become very complex and difficult to understand. This complexity slows down everyone who needs to work on the system, further increas‐ ing the cost of maintenance
+
+- There are various possible symptoms of complexity:
+  - Explosion of state space
+  - Tight coupling of modules
+  - Tangled dependencies
+  - Inconsistent naming and terminology
+  - Hacks aimed at solving performance problems
+- In complex software, there is also a greater risk of introducting bugs when making a change: when the system is harder for developers to understand and reason about, hidden assumptions, unintended consequences, and unexpected interactions are more easily overlooked
+- One of the best tools we have for removing accidental complexity is abstraction
+
+### Evolvability: Making Change Easy
+
+
+It’s extremely unlikely that your system’s requirements will remain unchanged for ever. They are much more likely to be in constant flux: you learn new facts, previously unanticipated use cases emerge, business priorities change, users request new features, new platforms replace old platforms, legal or regulatory requirements change, growth of the system forces architectural changes, etc
+
+- In terms of organizational processes, Agile working patterns provide a framework for adapting to change
+- The Agile community has also developed technical tools and patterns that are helpful when developing software in a frequently changing environment, such as test-driven development (TDD) and refactoring
+- Evolvability == Aginity
+
+
+### Summary
+
+An application has to meet various requirements in order to be useful. There are *functional requirements* (what it should do, such as allowing data to be stored, retrieved, searched, and processed in various ways), and some *nonfunctional requirements* (general properties like security, reliability, compliance, scalability, compatibil‐ ity, and maintainability). In this chapter we discussed reliability, scalability, and maintainability in detail.
+
+Reliability** means making systems work correctly, even when faults occur. Faults can be in hardware (typically random and uncorrelated), software (bugs are typically systematic and hard to deal with), and humans (who inevitably make mistakes from time to time). Fault-tolerance techniques can hide certain types of faults from the end user.
+
+*Scalability* means having strategies for keeping performance good, even when load increases. In order to discuss scalability, we first need ways of describing load and performance quantitatively. We briefly looked at Twitter’s home timelines as an example of describing load, and response time percentiles as a way of measuring performance. In a scalable system, you can add processing capacity in order to remain reliable under high load.
+
+*Maintainability* has many facets, but in essence it’s about making life better for the engineering and operations teams who need to work with the system. Good abstractions can help reduce complexity and make the system easier to modify and adapt for new use cases. Good operability means having good visibility into the system’s health, and having effective ways of managing it.
